@@ -213,7 +213,7 @@ services:
     depends_on:
       - mongo
     ports:
-      - "3000:3000"
+      - "3001:3000"
 
   chat21httpserver:
     image: chat21/chat21-http-server:0.2.37
@@ -270,7 +270,7 @@ services:
       - MAXRJITTER=5
       - GRACEFULTIMEOUT=30
     ports:
-      - 8000:8000
+      - "8001:8000"
       
   rabbitmq:
     image: chat21/chat21-rabbitmq
