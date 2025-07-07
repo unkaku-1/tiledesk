@@ -1,0 +1,283 @@
+services:
+  ai:
+    container_name: ai
+    environment:
+    - WORKERS=3
+    - TIMEOUT=180
+    - MAXREQUESTS=1200
+    - MAXRJITTER=5
+    - GRACEFULTIMEOUT=30
+    image: tiledesk/tiledeskai-lite:0.1.0
+    ports:
+    - 8002:8000
+    restart: always
+  cds:
+    container_name: cds
+    environment:
+    - FEATURES_TOKEN=PAY:F-ANA:T-ACT:T-TRI:T-GRO:T-DEP:T-OPH:T-MTL:T-CAR:T-PSA:F-MTT:T-SUP:T-LBS:T-APP:T-DEV:F-NOT:T-IPS:F-ETK:F-RAS:T-PPB:F-PET:F-MTS:F-TIL:T-DGF:T-NAT:T-HPB:F-TOW:F-KNB:F-GPT:T-BAN:F-AST:F-MON:T-CNT:F-AUT:F-WUN:F-QIN:F-INT:T-DPA:T
+    - WIDGET_LOCATION=${EXTERNAL_BASE_URL:-http://localhost:8081}/widget/
+    - SERVER_BASE_URL=/api/
+    - DASHBOARD_URL=/dashboard/
+    - WS_URL
+    - WS_URL_RELATIVE=/ws/
+    - BRAND_SRC
+    - REMOTE_JS_SRC
+    - UPLOAD_ENGINE=native
+    - LOG_LEVEL=info
+    - FIREBASE_APIKEY
+    - FIREBASE_AUTHDOMAIN
+    - FIREBASE_DATABASEURL
+    - FIREBASE_PROJECT_ID
+    - FIREBASE_STORAGEBUCKET
+    - FIREBASE_MESSAGINGSENDERID
+    - FIREBASE_APP_ID
+    - FIREBASE_VAPID
+    - CDS_STORAGE_PREFIX=cds_sv5
+    - API_BASEIMAGE_URL=/api/
+    - FILE_UPLOAD_ACCEPT=*/*
+    - AI_MODELS=gpt-3.5-turbo:0.6;gpt-4:25;gpt-4-turbo-preview:12;gpt-4o:6;gpt-4o-mini:0.3
+    image: tiledesk/design-studio:1.30.4
+    ports:
+    - 4503:80
+  chat21httpserver:
+    container_name: chat21httpserver
+    depends_on:
+    - mongo
+    - rabbitmq
+    environment:
+    - LOG_LEVEL=info
+    - MONGODB_URI=mongodb://mongo/chat21
+    - JWT_KEY=tokenKey
+    - RABBITMQ_URI=amqp://ignored:eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJiMjM1OTFmZS05N2FhLTRmNWQtOGVlOS0yNjQ2NzljYmM0M2YiLCJzdWIiOiIxMDAtQVBJQURNSU4iLCJzY29wZSI6WyJyYWJiaXRtcS5yZWFkOiovKi8qIiwicmFiYml0bXEud3JpdGU6Ki8qLyoiLCJyYWJiaXRtcS5jb25maWd1cmU6Ki8qLyoiXSwiY2xpZW50X2lkIjoiMTAwLUFQSUFETUlOIiwiY2lkIjoiMTAwLUFQSUFETUlOIiwiYXpwIjoiMTAwLUFQSUFETUlOIiwidXNlcl9pZCI6IjEwMC1BUElBRE1JTiIsImFwcF9pZCI6InRpbGVjaGF0IiwiaWF0IjoxNjk2NDkyMjg3LCJleHAiOjIwMDc1MzIyODcsImF1ZCI6WyJyYWJiaXRtcSIsIjEwMC1BUElBRE1JTiJdLCJraWQiOiJ0aWxlZGVzay1rZXkiLCJ0aWxlZGVza19hcGlfcm9sZXMiOiJhZG1pbiJ9.Ee-TpAPsoC7Dm7qsbUojeHud3E4OCtJZkpupu_R0Aic@rabbitmq:5672?heartbeat=60
+    - PUSH_ENABLED=true
+    - FIREBASE_PRIVATE_KEY
+    - FIREBASE_APIKEY
+    - FIREBASE_PROJECT_ID
+    - FIREBASE_CLIENT_EMAIL
+    - PUSH_WH_CHAT21_API_ADMIN_TOKEN=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI5NGFjNjNmNy1hOGM3LTRkZGMtYjJkNS01MWE2MjBmNTdhNmIiLCJzdWIiOiIxMDAtQVBJQURNSU4iLCJzY29wZSI6WyJyYWJiaXRtcS5yZWFkOiovKi8qIiwicmFiYml0bXEud3JpdGU6Ki8qLyoiLCJyYWJiaXRtcS5jb25maWd1cmU6Ki8qLyoiXSwiY2xpZW50X2lkIjoiMTAwLUFQSUFETUlOIiwiY2lkIjoiMTAwLUFQSUFETUlOIiwiYXpwIjoiMTAwLUFQSUFETUlOIiwidXNlcl9pZCI6IjEwMC1BUElBRE1JTiIsImFwcF9pZCI6InRpbGVjaGF0IiwiaWF0IjoxNjM3NzYxNDM0LCJleHAiOjE5NDg4MDE0MzQsImF1ZCI6WyJyYWJiaXRtcSIsIjEwMC1BUElBRE1JTiJdLCJraWQiOiJ0aWxlZGVzay1rZXkiLCJ0aWxlZGVza19hcGlfcm9sZXMiOiJhZG1pbiJ9.fLPrGArRlnyC04552oBsUjohf6l_BIpxwB847xWvugo
+    - PUSH_WH_NOTIFY_URL=http://localhost:8004/api/tilechat/notify
+    - PUSH_WH_WEBHOOK_TOKEN=WHFyAhecCMkYsvldLFWbSrJt7lAZFAmrp7O5QVMvGQsLVn9SkfT
+    - CHAT21HTTP_CACHE_ENABLED=false
+    - CONTACTS_LOOKUP_ENDPOINT=http://server:3000/users_util
+    image: chat21/chat21-http-server:0.2.37
+    ports:
+    - 8005:8004
+    restart: always
+  chat21server:
+    container_name: chat21server
+    depends_on:
+    - mongo
+    - rabbitmq
+    - server
+    environment:
+    - LOG_LEVEL=info
+    - MONGODB_URI=mongodb://mongo/chat21
+    - APP_ID=tilechat
+    - WEBHOOK_ENDPOINTS=http://server:3000/chat21/requests,http://chat21httpserver:8004/api/tilechat/push/webhook/endpoint/WHFyAhecCMkYsvldLFWbSrJt7lAZFAmrp7O5QVMvGQsLVn9SkfT
+    - WEBHOOK_ENABLED=true
+    - WEBHOOK_EVENTS=message-sent,message-delivered,conversation-unarchived
+    - RABBITMQ_URI=amqp://ignored:eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI3NjMwYTAwZS0xNTUxLTQ3Y2ItYmEzMC02NGRlNjJmYmNmNGYiLCJzdWIiOiIwMS1PQlNFUlZFUiIsInNjb3BlIjpbInJhYmJpdG1xLnJlYWQ6Ki8qLyoiLCJyYWJiaXRtcS53cml0ZToqLyovKiIsInJhYmJpdG1xLmNvbmZpZ3VyZToqLyovKiJdLCJjbGllbnRfaWQiOiIwMS1PQlNFUlZFUiIsImNpZCI6IjAxLU9CU0VSVkVSIiwiYXpwIjoiMDEtT0JTRVJWRVIiLCJ1c2VyX2lkIjoiMDEtT0JTRVJWRVIiLCJhcHBfaWQiOiJ0aWxlY2hhdCIsImlhdCI6MTY5NjQ5MjI4NywiZXhwIjoyMDA3NTMyMjg3LCJhdWQiOlsicmFiYml0bXEiLCIwMS1PQlNFUlZFUiJdLCJraWQiOiJ0aWxlZGVzay1rZXkiLCJ0aWxlZGVza19hcGlfcm9sZXMiOiJ1c2VyIn0.Lq0MLTYny7tIYVQ-KEDLlL-h7gAqofCfC2IDgI_0TOE@rabbitmq:5672?heartbeat=60
+    image: chat21/chat21-server:0.2.53
+    restart: always
+  chatbot:
+    container_name: chatbot
+    environment:
+    - API_ENDPOINT=http://server:3000
+    - TILEBOT_ENDPOINT=http://chatbot:3000
+    - API_URL=${EXTERNAL_BASE_URL:-http://localhost:8081}/api
+    - MONGODB_URI=mongodb://mongo/tiledesk
+    - CACHE_ENABLED=true
+    - CACHE_REDIS_HOST=redis
+    - CACHE_REDIS_PORT=6379
+    - TILEBOT_LOG=info
+    - AI_ENDPOINT=http://ai:8000/api
+    image: tiledesk/tiledesk-chatbot:2.0.7
+  dashboard:
+    container_name: dashboard
+    environment:
+    - FEATURES_TOKEN=PAY:F-ANA:T-ACT:T-TRI:T-GRO:T-DEP:T-OPH:T-MTL:T-CAR:T-PSA:F-MTT:T-SUP:T-LBS:T-APP:T-DEV:F-NOT:T-IPS:F-ETK:F-RAS:T-PPB:F-PET:F-MTS:F-TIL:T-DGF:T-NAT:T-HPB:F-TOW:F-KNB:F-GPT:T-BAN:F-AST:F-MON:T-CNT:F-AUT:F-WUN:F-QIN:F-INT:T-DPA:T
+    - BOT_CREDENTIAL_URL=/api/modules/dialogflow/botcredendials/
+    - RASA_BOT_CREDENTIAL_URL=/api/modules/rasa/botcredendials/
+    - WIDGET_LOCATION=${EXTERNAL_BASE_URL:-http://localhost:8081}/widget/
+    - SERVER_BASE_URL=/api/
+    - CHAT_BASE_URL=/chat/
+    - CDS_BASE_URL=/cds/
+    - WS_URL
+    - WS_URL_RELATIVE=/ws/
+    - BRAND_SRC
+    - REMOTE_JS_SRC
+    - CHAT21_ENGINE=mqtt
+    - UPLOAD_ENGINE=native
+    - PUSH_ENGINE=none
+    - LOG_LEVEL=info
+    - APPS_URL=/api/modules/apps/
+    - PROMO_BANNER_URL
+    - FIREBASE_APIKEY
+    - FIREBASE_AUTHDOMAIN
+    - FIREBASE_DATABASEURL
+    - FIREBASE_PROJECT_ID
+    - FIREBASE_STORAGEBUCKET
+    - FIREBASE_MESSAGINGSENDERID
+    - FIREBASE_APP_ID
+    - FIREBASE_VAPID
+    - API_BASEIMAGE_URL=/api/
+    - COMMUNITY_TEMPLATES_URL=/api/modules/templates/public/community
+    - TEMPLATES_URL=/api/modules/templates/public/templates
+    - FILE_UPLOAD_ACCEPT=*/*
+    image: tiledesk/tiledesk-dashboard:2.7.93
+    ports:
+    - 4501:80
+  ionic:
+    container_name: chat21-ionic
+    environment:
+    - DASHBOARD_URL=/dashboard/
+    - API_BASEIMAGE_URL=/api/
+    - SERVER_BASE_URL=/api/
+    - FEATURES_TOKEN=PAY:F-ANA:T-ACT:T-TRI:T-GRO:T-DEP:T-OPH:T-MTL:T-CAR:T-PSA:F-MTT:T-SUP:T-LBS:T-APP:T-DEV:F-NOT:T-IPS:F-ETK:F-RAS:T-PPB:F-PET:F-MTS:F-TIL:T-DGF:T-NAT:T-HPB:F-TOW:F-KNB:F-GPT:T-BAN:F-AST:F-MON:T-CNT:F-AUT:F-WUN:F-QIN:F-INT:T-DPA:T
+    - WIDGET_LOCATION=/widget/
+    - PUSH_ENGINE=none
+    - LOG_LEVEL=info
+    - FILE_UPLOAD_ACCEPT=*/*
+    - CHAT21_ENGINE=mqtt
+    - MQTT_APPID=tilechat
+    - MQTT_ENDPOINT=${EXTERNAL_MQTT_BASE_URL:-ws://localhost:8081}/mqws/ws
+    - MQTT_APIENDPOINT=/chatapi/api
+    - UPLOAD_ENGINE=native
+    - FIREBASE_APIKEY
+    - FIREBASE_AUTHDOMAIN
+    - FIREBASE_DATABASEURL
+    - FIREBASE_PROJECT_ID
+    - FIREBASE_STORAGEBUCKET
+    - FIREBASE_MESSAGINGSENDERID
+    - FIREBASE_TENANT=tilechat
+    - FIREBASE_VAPID
+    - SUPPORT_MODE=true
+    - WRITE_TO_BUTTON=true
+    - ARCHIVED_BUTTON=true
+    - AUTH_PERSISTENCE=LOCAL
+    - EMAIL_SECTION=true
+    - CHAT_STORAGE_PREFIX=chat_sv5
+    - WS_URL_RELATIVE=/ws/
+    image: chat21/chat21-ionic:3.4.13
+    ports:
+    - 8083:80
+  mongo:
+    command: --bind_ip_all
+    container_name: mongo
+    image: mongo:7.0.2
+    volumes:
+    - tiledesk-datadb:/data/db
+  proxy:
+    command:
+    - nginx-debug
+    - -g
+    - daemon off;
+    container_name: tiledesk-docker-proxy
+    depends_on:
+    - server
+    - dashboard
+    - webwidget
+    - chat21httpserver
+    - rabbitmq
+    - cds
+    image: tiledesk/tiledesk-docker-proxy:v1.1.2
+    ports:
+    - 8081:80
+  rabbitmq:
+    container_name: rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
+      RABBITMQ_ERLANG_COOKIE: ${RABBITMQ_ERLANG_COOKIE}
+    image: chat21/chat21-rabbitmq
+    ports:
+    - 5673:5672
+    - 15673:15672
+    - 1884:1883
+    - 15676:15675
+  redis:
+    container_name: redis
+    image: redis:7.0.5
+    ports:
+    - 6380:6379
+  server:
+    container_name: server
+    depends_on:
+    - mongo
+    environment:
+    - LOG_LEVEL=info
+    - CHAT21_ENABLED=true
+    - CHAT21_ENGINE=mqtt
+    - CHAT21_URL=http://chat21httpserver:8004
+    - CHAT21_JWT_SECRET=tokenKey
+    - CHAT21_APPID=tilechat
+    - RESTHOOK_ENABLED=true
+    - ALLOW_REOPEN_CHAT=true
+    - CHAT21_ADMIN_TOKEN=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIzNDU2MTBkNy03MmYxLTQ5OWUtODQzMS0xMTNhZWJkOWVmOTgiLCJzdWIiOiIxMDAtQVBJQURNSU4iLCJzY29wZSI6WyJyYWJiaXRtcS5yZWFkOiovKi8qIiwicmFiYml0bXEud3JpdGU6Ki8qLyoiLCJyYWJiaXRtcS5jb25maWd1cmU6Ki8qLyoiXSwiY2xpZW50X2lkIjoiMTAwLUFQSUFETUlOIiwiY2lkIjoiMTAwLUFQSUFETUlOIiwiYXpwIjoiMTAwLUFQSUFETUlOIiwidXNlcl9pZCI6IjEwMC1BUElBRE1JTiIsImFwcF9pZCI6InRpbGVjaGF0IiwiaWF0IjoxNjE0OTQzNDkyLCJleHAiOjE5MjU5ODM0OTIsImF1ZCI6WyJyYWJiaXRtcSIsIjEwMC1BUElBRE1JTiJdLCJraWQiOiJ0aWxlZGVzay1rZXkiLCJ0aWxlZGVza19hcGlfcm9sZXMiOiJhZG1pbiJ9.KptGMsTKjd3wUiiP1GGSTYqW1XXK1vjSRJnetC3wjxU
+    - AMQP_MANAGER_URL=amqp://ignored:eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI3NjMwYTAwZS0xNTUxLTQ3Y2ItYmEzMC02NGRlNjJmYmNmNGYiLCJzdWIiOiIwMS1PQlNFUlZFUiIsInNjb3BlIjpbInJhYmJpdG1xLnJlYWQ6Ki8qLyoiLCJyYWJiaXRtcS53cml0ZToqLyovKiIsInJhYmJpdG1xLmNvbmZpZ3VyZToqLyovKiJdLCJjbGllbnRfaWQiOiIwMS1PQlNFUlZFUiIsImNpZCI6IjAxLU9CU0VSVkVSIiwiYXpwIjoiMDEtT0JTRVJWRVIiLCJ1c2VyX2lkIjoiMDEtT0JTRVJWRVIiLCJhcHBfaWQiOiJ0aWxlY2hhdCIsImlhdCI6MTY5NjQ5MjI4NywiZXhwIjoyMDA3NTMyMjg3LCJhdWQiOlsicmFiYml0bXEiLCIwMS1PQlNFUlZFUiJdLCJraWQiOiJ0aWxlZGVzay1rZXkiLCJ0aWxlZGVza19hcGlfcm9sZXMiOiJ1c2VyIn0.Lq0MLTYny7tIYVQ-KEDLlL-h7gAqofCfC2IDgI_0TOE@rabbitmq:5672?heartbeat=60
+    - MONGODB_URI=mongodb://mongo/tiledesk
+    - EMAIL_ENABLED
+    - EMAIL_HOST
+    - EMAIL_USERNAME
+    - EMAIL_SECURE
+    - EMAIL_PORT
+    - EMAIL_PASSWORD
+    - EMAIL_FROM_ADDRESS
+    - EMAIL_BASEURL=${EXTERNAL_BASE_URL:-http://localhost:8081}/dashboard
+    - WEBHOOK_ORIGIN=${EXTERNAL_BASE_URL:-http://localhost:8081}/api/
+    - WIDGET_LOCATION=${EXTERNAL_BASE_URL:-http://localhost:8081}/widget/
+    - WS_SERVER_PATH
+    - LICENSE_KEY
+    - CACHE_ENABLED=true
+    - CACHE_ENGINE=redis
+    - CACHE_REDIS_HOST=redis
+    - CACHE_REDIS_PORT=6379
+    - APPS_ACCESS_TOKEN_SECRET=nodeauthsecret
+    - BOOT_LOADING=true
+    - META_GRAPH_URL=https://graph.facebook.com/v14.0/
+    - WHATSAPP_LOG=false
+    - TELEGRAM_API_URL=https://api.telegram.org/bot
+    - TELEGRAM_FILE_URL=https://api.telegram.org/file/bot
+    - TELEGRAM_LOG=info
+    - FB_APP_ID
+    - FB_APP_SECRET
+    - BASE_FILE_URL=${EXTERNAL_BASE_URL:-http://localhost:8081}/api/
+    - GPTKEY=CHANGEIT
+    - OPENAI_ENDPOINT=https://api.openai.com/v1
+    - KB_ENDPOINT
+    - QUOTES_ENABLED=false
+    - TILEBOT_ENDPOINT=http://chatbot:3000
+    image: tiledesk/tiledesk-server:2.10.75
+    ports:
+    - 3002:3000
+    restart: always
+  webwidget:
+    container_name: chat21-web-widget
+    environment:
+    - CHAT21_ENGINE=mqtt
+    - MQTT_APPID=tilechat
+    - PUSH_ENGINE=none
+    - LOG_LEVEL=info
+    - MQTT_ENDPOINT=${EXTERNAL_MQTT_BASE_URL:-ws://localhost:8081}/mqws/ws
+    - MQTT_APIENDPOINT=${EXTERNAL_BASE_URL:-http://localhost:8081}/chatapi/api
+    - FIREBASE_APIKEY
+    - FIREBASE_AUTHDOMAIN
+    - FIREBASE_DATABASEURL
+    - FIREBASE_PROJECT_ID
+    - FIREBASE_STORAGEBUCKET
+    - FIREBASE_MESSAGINGSENDERID
+    - FIREBASE_TENANT=tilechat
+    - UPLOAD_ENGINE=native
+    - SERVER_BASE_URL=${EXTERNAL_BASE_URL:-http://localhost:8081}/api/
+    - TRANSLATIONS_URL=${EXTERNAL_BASE_URL:-http://localhost:8081}/api/
+    - API_BASEIMAGE_URL=${EXTERNAL_BASE_URL:-http://localhost:8081}/api/
+    - DASHBOARD_URL=/dashboard/
+    - AUTH_PERSISTENCE=LOCAL
+    - ENBED_JS=true
+    - FILE_UPLOAD_ACCEPT=*/*
+    image: chat21/chat21-web-widget:5.0.93
+    ports:
+    - 4201:80
+version: '3.7'
+volumes:
+  tiledesk-datadb: null
